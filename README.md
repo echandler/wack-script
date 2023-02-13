@@ -10,6 +10,6 @@ Hallelujah, rounds for this map are hard to make, if you would lke to contribute
 - An idea. Harder than it sounds.
 - An account on [map-maker.app](https://map-maker.app).
 - The helper script: [link](https://github.com/echandler/wack-script/raw/main/wackHelperScript.user.js)
-- And this video youtube video: https://www.youtube.com/watch?v=-ce71eMwMvc
+- And this youtube video: https://www.youtube.com/watch?v=-ce71eMwMvc
 
 I'm not sure about the popularity of this map, so for now if you could message me on discord at "echandler#6868".
