@@ -6,7 +6,7 @@ Click this link to install in Tampermonkey [link](https://github.com/echandler/w
 
 #### Do you want to create your own round?
 
-Hallelujah, rounds for this map are hard to make, if you would lke to contribute your own wack round you will need atleast four things:
+Hallelujah, rounds for this map are hard to make, if you would lke to contribute your own wack round you will need at least four things:
 - An idea. Harder than it sounds.
 - An account on [map-maker.app](https://map-maker.app).
 - The helper script: [link](https://github.com/echandler/wack-script/raw/main/wackHelperScript.user.js)
