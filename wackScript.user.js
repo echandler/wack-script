@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Wack script v1.4
+// @name         Wack script v1.41
 // @namespace    GeoGuessr scripts
-// @version      1.4
+// @version      1.41
 // @description  Wack script for a wack map.
 // @match        https://www.geoguessr.com/*
 // @author       echandler
