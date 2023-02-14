@@ -229,7 +229,7 @@ let modifyGoogleMapsObject = function () {
     google.maps.Map = class extends google.maps.Map {
         constructor(...args) {
             super(...args);
-            window.__map = this;
+            unsafeWindow.__map = this;
 
             unsafeWindow.google.maps.event.trigger(unsafeWindow, "map created", this);
         }
