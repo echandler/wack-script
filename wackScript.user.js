@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Wack script v1.41
+// @name         Wack script v1.42
 // @namespace    GeoGuessr scripts
-// @version      1.41
+// @version      1.42
 // @description  Wack script for a wack map.
 // @match        https://www.geoguessr.com/*
 // @author       echandler
@@ -226,17 +226,43 @@ async function streetViewSetPositionChanged(event) {
 }
 
 let modifyGoogleMapsObject = function () {
-    google.maps.Map = class extends google.maps.Map {
-        constructor(...args) {
-            super(...args);
-            unsafeWindow.__map = this;
+      let oldMaps = google.maps.Map;
+    google.maps.Map = function(...args){
+            let res = oldMaps.apply(this, args);
 
-            unsafeWindow.google.maps.event.trigger(unsafeWindow, "map created", this);
-        }
-    };
+            unsafeWindow.__map = this;
+            unsafeWindow.google.maps.event.trigger(unsafeWindow, 'map created', this);
+           return res;
+    }
+    google.maps.Map.prototype = oldMaps.prototype;
 };
 
-unsafeWindow._next = function () {
+unsafeWindow.showPano = function(n){
+    let sv = unsafeWindow.__sv;
+
+    if (points[n].panoId){
+        sv.setPano(points[n].panoId);
+        sv.setPov({heading: points[n].heading, pitch: points[n].pitch});
+    } else {
+        sv.setPosition(points[n]);
+        sv.setPov({heading: points[n].heading, pitch: points[n].pitch});
+    }
+
+    if (points[n]?.extra?.tags?.length > 0){
+        appendMsgBox(points[n].extra.tags[0]);
+        //     alert(points[n].extra.tags[0]);
+    } else {
+
+        appendMsgBox(null);
+    }
+    if (points[n].preventBackward){
+
+    }
+    navigation.checkBtnState(points[n]);
+
+}
+
+unsafeWindow._next = function (){
     if (points[n].preventForward) return;
 
     let sv = unsafeWindow.__sv;
@@ -244,22 +270,9 @@ unsafeWindow._next = function () {
 
     if (n >= points.length) n = 0;
 
-    if (points[n].panoId) {
-        sv.setPano(points[n].panoId);
-        sv.setPov({ heading: points[n].heading, pitch: points[n].pitch });
-    } else {
-        sv.setPosition(points[n]);
-        sv.setPov({ heading: points[n].heading, pitch: points[n].pitch });
-    }
+    unsafeWindow.showPano(n);
 
-    if (points[n]?.extra?.tags?.length > 0) {
-        appendMsgBox(points[n].extra.tags[0]);
-    } else {
-        appendMsgBox(null);
-    }
-    if (points[n].preventBackward) {
-    }
-    navigation.checkBtnState(points[n]);
+    return;
 };
 
 unsafeWindow._back = function () {
@@ -270,19 +283,8 @@ unsafeWindow._back = function () {
     n--;
     if (n < 0) n = points.length - 1;
 
-    if (points[n].panoId) {
-        sv.setPano(points[n].panoId);
-        sv.setPov({ heading: points[n].heading, pitch: points[n].pitch });
-    } else {
-        sv.setPosition(points[n]);
-        sv.setPov({ heading: points[n].heading, pitch: points[n].pitch });
-    }
-    if (points[n]?.extra?.tags?.length > 0) {
-        appendMsgBox(points[n].extra.tags[0]);
-    } else {
-        appendMsgBox(null);
-    }
-    navigation.checkBtnState(points[n]);
+    unsafeWindow.showPano(n);
+    return;
 };
 
 async function testIfRouteExists(lat, lng) {
