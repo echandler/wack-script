@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Wack script v1.42
+// @name         Wack script v1.5
 // @namespace    GeoGuessr scripts
-// @version      1.42
+// @version      1.5
 // @description  Wack script for a wack map.
 // @match        https://www.geoguessr.com/*
 // @author       echandler
@@ -57,11 +57,14 @@ const callback = function (mutationsList, observer) {
                 observer.disconnect();
 
                 el.addEventListener("load", function () {
+                    console.log('wackity');
+                    if (!observer) return;
+                    observer = undefined;
                     modifyStreeVeiwPanoramaObj();
                     modifyGoogleMapsObject();
                     navigation.makeButtons();
                     makeEventListeners();
-                });
+                }, {once: true});
             }
         }
     }
@@ -81,52 +84,85 @@ let curPos = null;
 let setPosErrorTimer = null;
 let n = 0;
 
+let oldSV = null;
+
 let modifyStreeVeiwPanoramaObj = function () {
-    google.maps.StreetViewPanorama = class extends google.maps.StreetViewPanorama {
-        constructor(...args) {
-            super(...args);
+    oldSV = google.maps.StreetViewPanorama.prototype.setPosition;
+    console.log('wack', oldSV);
+    google.maps.StreetViewPanorama.prototype.setPosition = _setPos;//Object.assign(
+      //  function (...args) {
+//
+      // // google.maps.StreetViewPanorama = class extends google.maps.StreetViewPanorama {
+      // //    constructor(...args) {
+      // //       super(...args);
+//
+//
+      // //          this.protoType.setPosition = _setPos;
+//
+      //      setTimeout(() => {
+      //          if (!isCorrectMap()) return;
+//
+      //          el = args[0];
+//
+      //          this.setOptions({
+      //              clickToGo: false,
+      //              linksControl: false,
+      //          });
+      //      }, 100);
+//
+      //  google.maps.StreetViewPanorama.prototype.setPosition = _setPos;
+      //  google.maps.StreetViewPanorama.prototype.setPosition.apply(this, args);
+      //  //    unsafeWindow.google.maps.event.trigger(unsafeWindow, "street veiw created", this);
+      //  }
+   // };
+};
 
-            unsafeWindow.__sv = this;
+let optionsSet = false;
+let once = false;
+function _setPos(...args) {
+    // wack
+    let _args = [...args];
 
-            this.setPosition = _setPos;
+    if (once) {
+      //  console.log('wack');
+        oldSV.apply(this, args);
+        return;
+    }
+    once = true;
+    this.addListener("position_changed", () => {
 
+        //  Used for debugging, flashes element when sv position changes.
+        //  let p = document.querySelector('[data-qa="pano-zoom-in"]');
+        //  if (!p) return;
+        //  p.style.background = 'red';
+        //  setTimeout(()=> p.style.background = '', 100);
+
+        unsafeWindow.__sv = this;
+
+        if (!optionsSet){
             setTimeout(() => {
+                optionsSet = true;
                 if (!isCorrectMap()) return;
 
-                el = args[0];
+                el = document.createElement('div');//_args[0];
 
                 this.setOptions({
                     clickToGo: false,
                     linksControl: false,
                 });
             }, 100);
-
-            unsafeWindow.google.maps.event.trigger(unsafeWindow, "street veiw created", this);
         }
-    };
-};
 
-function _setPos(...args) {
-    if (args[1] === true && curRoundObj) {
-        // Weird fix for geoguessr passing latlng for latest coverage instead of
-        // specified coverage.
-        return;
-    }
+        unsafeWindow.google.maps.event.trigger(unsafeWindow, "street view set position changed", { args: args, _this: this });
+    });
 
-    if (!curRoundObj) {
-        // Weird fix for geoguessr passing latlng for latest coverage instead of
-        // specified coverage.
-        setPosErrorTimer = setTimeout(() => this.setPosition(args[0], true), 2000);
-        return;
-    }
-
-    this.__proto__.setPosition.apply(this, args);
-
-    unsafeWindow.google.maps.event.trigger(unsafeWindow, "street view set position changed", { args: args, _this: this });
+    oldSV.apply(this, args);
+   // if (google.maps.StreetViewPanorama.prototype.setPosition === _setPos)
+    google.maps.StreetViewPanorama.prototype.setPosition = oldSV;
 }
 
 async function streetViewSetPositionChanged(event) {
-    let args = event.args;
+    let args = [event._this.position];
     let _this = event._this;
 
     if (!isCorrectMap()) return;
@@ -580,10 +616,10 @@ function isBetweenRounds(node) {
         if (/play again/i.test(element.innerHTML)) {
             ret = "final";
         }
-        if (/view summary/i.test(element.innerHTML)) {
+        if (/view results/i.test(element.innerHTML)) {
             ret = "summary";
         }
-        if (/play next round/i.test(element.innerHTML)) {
+        if (/Next/.test(element.innerHTML)) {
             ret = "end of round";
         }
         return false;
