@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Wack script v1.5
+// @name         Wack script v1.6
 // @namespace    GeoGuessr scripts
-// @version      1.5
+// @version      1.6
 // @description  Wack script for a wack map.
 // @match        https://www.geoguessr.com/*
 // @author       echandler
@@ -14,7 +14,8 @@
 ///////////////////////////////////////////////////////////
 
 //  Change the value of this variable to the name of your map.
-let correctMapName = "wack map";
+//let correctMapName = "wack map";
+let correctMapName = ["wack map", "British wack map"];
 
 ///////////////////////////////////////////////////////////
 
@@ -567,10 +568,14 @@ let lc = {
 
 function isCorrectMap() {
     let mapNameEl = document.querySelector(`[data-qa="map-name"]`);
-    let regEx = new RegExp(correctMapName);
-    if (!mapNameEl || !regEx.test(mapNameEl.innerText)) return;
+    if (!mapNameEl) return;
 
-    return true;
+    for(let n = 0; n < correctMapName.length; n++){
+        let regEx = new RegExp(correctMapName[n]);
+        if (regEx.test(mapNameEl.innerText)) return true;
+    }
+
+    return false;
 }
 
 function endOfRoundScreen_load_() {
