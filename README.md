@@ -1,3 +1,5 @@
+``⚠️`` Installing any script could get your account banned.
+
 # wack script
 A wack script for a wack map. This Geoguessr map actually: https://www.geoguessr.com/maps/63dd8b99bb79969aeb40fb3b
 
